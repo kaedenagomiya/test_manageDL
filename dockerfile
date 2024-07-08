@@ -69,13 +69,13 @@ ENV PATH="$PYENV_ROOT/bin:$PATH"
 ENV PATH="$HOME/.pyenv/shims:$PATH"
 
 RUN git clone ${PYENV_URL} ${HOME}/.pyenv \
-	${PYENV_ROOT}/src/configure \
-	make -C ${PYENV_ROOT}/src \
-	echo '' >> ${HOME}/.bashrc \
-	echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ${HOME}/.bashrc \
-	echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ${HOME}/.bashrc \
-	echo 'export PATH="$PYENV_ROOT/shims:$PATH"' >> ${HOME}/.bashrc \
-	echo 'eval "$(pyenv init -)"' >> ${HOME}/.bashrc
+	&& ${PYENV_ROOT}/src/configure \
+	&& make -C ${PYENV_ROOT}/src \
+	&& echo '' >> ${HOME}/.bashrc \
+	&& echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ${HOME}/.bashrc \
+	&& echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ${HOME}/.bashrc \
+	&& echo 'export PATH="$PYENV_ROOT/shims:$PATH"' >> ${HOME}/.bashrc \
+	&& echo 'eval "$(pyenv init -)"' >> ${HOME}/.bashrc
 # For pyenv-virtualenv
 # https://github.com/pyenv/pyenv-virtualenv
 # RUN git clone ${PYENVVIRTUAL_URL} $(pyenv root)/plugins/pyenv-virtualenv \
@@ -84,8 +84,8 @@ RUN git clone ${PYENV_URL} ${HOME}/.pyenv \
 RUN . ${HOME}/.bashrc
 
 # For Installing the specified Python and configure it for global recognition
-RUN pyenv install ${PYTHON_VERSION} && \
-	pyenv global ${PYTHON_VERSION}
+RUN pyenv install ${PYTHON_VERSION} \
+	&& pyenv global ${PYTHON_VERSION}
 
 # For poetry installation #########################################
 # https://python-poetry.org/docs/#installing-with-the-official-installer
@@ -94,10 +94,10 @@ ENV POETRY_HOME_DIR=/opt/poetry
 # update pip
 RUN pip install --upgrade pip
 # poetry install
-RUN curl -sSL ${POETRY_URL} | POETRY_HOME=${POETRY_HOME_DIR} python3 - && \
-	cd /usr/local/bin && \
-	ln -s /opt/poetry/bin/poetry \
-	poetry config virtualenvs.create false
+RUN curl -sSL ${POETRY_URL} | POETRY_HOME=${POETRY_HOME_DIR} python3 - \
+	&& cd /usr/local/bin && \
+	&& ln -s /opt/poetry/bin/poetry \
+	&& poetry config virtualenvs.create false
 # true when you need virtualenv
 	#poetry config virtualenvs.create true
 ENV PATH="$POETRY_HOME_DIR/bin:$PATH"
