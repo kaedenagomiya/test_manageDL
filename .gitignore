@@ -4,6 +4,7 @@ data/*
 !README.md
 wandb/
 test_*
+*.old
 
 ### Git ###
 # Created by git for backups. To disable backups in Git:
