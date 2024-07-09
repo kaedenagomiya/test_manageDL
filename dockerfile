@@ -1,11 +1,14 @@
 ARG BASE_IMAGE=nvidia/cuda:12.2.0-devel-ubuntu20.04
-ARG WORKING_DIR=/workspace
+FROM ${BASE_IMAGE}
+
+ARG PROJECT_NAME=workspace
+ARG USER_NAME=kaede
+ARG GROUP_NAME=nagomiya
+ARG WORKING_DIR=/home/${USER_NAME}/${PROJECT_NAME}
 ARG PYTHON_VERSION="3.9.16"
 ARG PYENV_URL="https://github.com/pyenv/pyenv.git"
 # ARG PYENVVIRTUAL_URL="https://github.com/pyenv/pyenv-virtualenv.git"
 ARG POETRY_URL="https://install.python-poetry.org"
-
-FROM ${BASE_IMAGE}
 
 # FONT
 ENV DEBIAN_FRONTEND="noninteractive" \
@@ -117,8 +120,19 @@ RUN poetry config virtualenvs.create true
 #RUN poetry config virtualenvs.create false
 
 # For setting UID/GID #############################################
-ADD ./exec_user.sh /usr/local/bin/exec_user.sh
-RUN chmod +x /usr/local/bin/exec_user.sh
+
+# Allow general users to add users/groups
+# CAREFULLY: Restore permissions in entrypoint.sh
+RUN chmod u+s /usr/sbin/useradd \
+    && chmod u+s /usr/sbin/groupadd
+
+COPY entrypoint.sh /
+
+# Enable the use of sudo
+RUN echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/${USER_NAME}
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]
 
 # For user custom #################################################
 WORKDIR ${WORKING_DIR}
