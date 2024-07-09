@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASE_DATA_DIR=./data
 DATASET_NAME=ljspeech
