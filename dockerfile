@@ -90,17 +90,26 @@ RUN pyenv install ${PYTHON_VERSION} \
 # For poetry installation #########################################
 # https://python-poetry.org/docs/#installing-with-the-official-installer
 # path for poetry install
-ENV POETRY_HOME_DIR=/opt/poetry
+#ENV POETRY_HOME_DIR=/opt/poetry
 # update pip
 RUN pip install --upgrade pip
-# poetry install
-RUN curl -sSL ${POETRY_URL} | POETRY_HOME=${POETRY_HOME_DIR} python3 - \
-	&& cd /usr/local/bin && \
-	&& ln -s /opt/poetry/bin/poetry \
-	&& poetry config virtualenvs.create false
+# poetry install, ver specific directory
+#RUN curl -sSL ${POETRY_URL} | POETRY_HOME=${POETRY_HOME_DIR} python3 - \
+#	&& cd /usr/local/bin \
+#	&& ln -s /opt/poetry/bin/poetry
+#ENV PATH="$POETRY_HOME_DIR/bin:$PATH"
+
+# simplified
+RUN curl -sSL ${POETRY_URL} | python3 - \
+	&& echo 'export PATH="$HOME/.local/bin:$PATH"' >> ${HOME}/.bashrc
+ENV PATH="$HOME/.local/bin"
+# The official Poetry documentation recommends that virtual environments be enabled even,
+# when using Docker containers.
 # true when you need virtualenv
-	#poetry config virtualenvs.create true
-ENV PATH="$POETRY_HOME_DIR/bin:$PATH"
+RUN poetry config virtualenvs.create true
+# false when you Don't need virtualenv
+#RUN poetry config virtualenvs.create false
+
 
 # For user custom #################################################
 WORKDIR ${WORKING_DIR}
