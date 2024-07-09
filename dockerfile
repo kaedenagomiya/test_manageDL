@@ -16,11 +16,14 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 ENV TZ=Asia/Tokyo
 
 # For software-development and easy to install for before python3.7
-RUN apt-get update && apt-get install --no-install-recommends -y software-properties-common
-RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update \
+	&& apt-get install --no-install-recommends -y software-properties-common \
+	&& add-apt-repository ppa:deadsnakes/ppa
 
 # For installing libraries
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get clean \
+	&& apt-get update \
+	&& apt-get install --no-install-recommends -y \
 	autoconf \
 	build-essential \
 	ca-certificates \
@@ -55,11 +58,14 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 	wget \
 	ffmpeg \
 	sox \
+	libsndfile1 \
 	libasound-dev \
 	portaudio19-dev \
 	libportaudio2 \
 	libportaudiocpp0 \
-	libav-tools
+	libav-tools \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
 
 # For setting pyenv ###############################################
 # RUN pip install --upgrade pip
@@ -110,6 +116,9 @@ RUN poetry config virtualenvs.create true
 # false when you Don't need virtualenv
 #RUN poetry config virtualenvs.create false
 
+# For setting UID/GID #############################################
+ADD ./exec_user.sh /usr/local/bin/exec_user.sh
+RUN chmod +x /usr/local/bin/exec_user.sh
 
 # For user custom #################################################
 WORKDIR ${WORKING_DIR}
